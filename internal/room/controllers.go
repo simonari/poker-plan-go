@@ -9,15 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
-type RoomController struct {
+type Controller struct {
 	db *gorm.DB
 }
 
-func NewRoomController(db *gorm.DB) *RoomController {
-	return &RoomController{db}
+func NewController(db *gorm.DB) *Controller {
+	return &Controller{db}
 }
 
-func (rc *RoomController) GetRoomsList(c *gin.Context) {
+func (rc *Controller) GetRoomsList(c *gin.Context) {
 	rooms := new([]database.Room)
 
 	rc.db.Find(&rooms)
@@ -25,7 +25,7 @@ func (rc *RoomController) GetRoomsList(c *gin.Context) {
 	c.JSON(http.StatusOK, rooms)
 }
 
-func (rc *RoomController) GetRoom(c *gin.Context) {
+func (rc *Controller) GetRoom(c *gin.Context) {
 	roomID := c.Param("id")
 
 	room := new(database.Room)
@@ -40,13 +40,11 @@ func (rc *RoomController) GetRoom(c *gin.Context) {
 	c.JSON(http.StatusOK, room)
 }
 
-type NewRoomHolder struct {
-	Name  string
-	Scale int
-}
-
-func (rc *RoomController) NewRoom(c *gin.Context) {
-	requestBody := new(NewRoomHolder)
+func (rc *Controller) NewRoom(c *gin.Context) {
+	requestBody := new(struct {
+		Name  string
+		Scale int
+	})
 
 	err := c.ShouldBindJSON(&requestBody)
 
