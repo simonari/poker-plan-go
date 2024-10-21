@@ -91,3 +91,7 @@ func generateRandomUrl(length int) string {
 
 	return string(result)
 }
+
+func (rc *Controller) DeleteRoom(c *gin.Context) {}
+
+func (rc *Controller) PatchRoom(c *gin.Context) {}
