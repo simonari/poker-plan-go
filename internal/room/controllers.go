@@ -18,20 +18,20 @@ func NewController(db *gorm.DB) *Controller {
 	return &Controller{db}
 }
 
-func (rc *Controller) GetRoomsList(c *gin.Context) {
+func (ct *Controller) GetRoomsList(c *gin.Context) {
 	rooms := new([]database.Room)
 
-	rc.db.Find(&rooms)
+	ct.db.Find(&rooms)
 
 	c.JSON(http.StatusOK, rooms)
 }
 
-func (rc *Controller) GetRoom(c *gin.Context) {
+func (ct *Controller) GetRoom(c *gin.Context) {
 	roomID := c.Param("id")
 
 	room := new(database.Room)
 
-	result := rc.db.First(&room, roomID)
+	result := ct.db.First(&room, roomID)
 
 	if result.Error != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Room was not found"})
@@ -41,7 +41,7 @@ func (rc *Controller) GetRoom(c *gin.Context) {
 	c.JSON(http.StatusOK, room)
 }
 
-func (rc *Controller) NewRoom(c *gin.Context) {
+func (ct *Controller) NewRoom(c *gin.Context) {
 	requestBody := new(struct {
 		Name  string
 		Scale int
@@ -60,7 +60,7 @@ func (rc *Controller) NewRoom(c *gin.Context) {
 		Scale: requestBody.Scale,
 	}
 
-	result := rc.db.Create(&obj)
+	result := ct.db.Create(&obj)
 
 	if result.Error != nil {
 		c.Status(http.StatusInternalServerError)
@@ -92,6 +92,6 @@ func generateRandomUrl(length int) string {
 	return string(result)
 }
 
-func (rc *Controller) DeleteRoom(c *gin.Context) {}
+func (ct *Controller) DeleteRoom(c *gin.Context) {}
 
-func (rc *Controller) PatchRoom(c *gin.Context) {}
+func (ct *Controller) PatchRoom(c *gin.Context) {}
