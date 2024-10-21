@@ -1,4 +1,4 @@
-package poker
+package database
 
 import "gorm.io/gorm"
 
