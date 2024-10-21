@@ -2,10 +2,11 @@ package room
 
 import (
 	"cmd/poker-backend/internal/database"
+	"fmt"
+	"math/rand"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gosimple/slug"
 	"gorm.io/gorm"
 )
 
@@ -53,11 +54,9 @@ func (rc *Controller) NewRoom(c *gin.Context) {
 		return
 	}
 
-	url := slug.Make(requestBody.Name)
-
 	obj := database.Room{
 		Name:  requestBody.Name,
-		Url:   url,
+		Url:   generateRandomUrl(12),
 		Scale: requestBody.Scale,
 	}
 
@@ -69,4 +68,26 @@ func (rc *Controller) NewRoom(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, obj)
+}
+
+func generateRandomUrl(length int) string {
+	//goland:noinspection SpellCheckingInspection
+	const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	const numbers = "0123456789"
+
+	result := make([]byte, length)
+
+	for i := range result {
+		c := rand.Int() % 2
+
+		fmt.Println(c)
+
+		if c == 1 {
+			result[i] = letters[rand.Intn(len(letters))]
+		} else {
+			result[i] = numbers[rand.Intn(len(numbers))]
+		}
+	}
+
+	return string(result)
 }
