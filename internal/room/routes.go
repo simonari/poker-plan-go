@@ -10,7 +10,7 @@ func AddRoomGroup(r *gin.Engine, db *gorm.DB) {
 
 	rc := NewController(db)
 
-	g.GET("/", rc.GetRoomsList)
+	g.GET("", rc.GetRoomsList)
 
 	g.POST("/new", rc.NewRoom)
 
