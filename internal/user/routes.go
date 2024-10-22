@@ -10,7 +10,7 @@ func AddUserGroup(r *gin.Engine, db *gorm.DB) {
 
 	rc := NewController(db)
 
-	g.POST("/user/register", rc.RegisterUser)
-	g.POST("/user/login", rc.LoginUser)
-	g.POST("/user/logout", rc.LogoutUser)
+	g.POST("/register", rc.RegisterUser)
+	g.POST("/login", rc.LoginUser)
+	g.POST("/logout", rc.LogoutUser)
 }
