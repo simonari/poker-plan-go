@@ -6,8 +6,6 @@ import (
 	"strconv"
 )
 
-type BaseConfig struct{}
-
 func getBoolEnv(name string) bool {
 	value_as_string, is_present := os.LookupEnv(name)
 
@@ -50,12 +48,24 @@ func getIntEnv(name string) int {
 	return value
 }
 
+var cfg *Config
+
 type Config struct {
 	Database DatabaseConfig
+	Secrets  SecretsConfig
 }
 
-func NewConfig() *Config {
+func newConfig() *Config {
 	return &Config{
 		Database: *newDatabaseConfig(),
+		Secrets:  *newSecretsConfig(),
 	}
+}
+
+func Get() *Config {
+	if cfg == nil {
+		cfg = newConfig()
+	}
+
+	return cfg
 }
