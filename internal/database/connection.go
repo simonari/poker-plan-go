@@ -14,7 +14,7 @@ func NewConnection(cfg config.DatabaseConfig) *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		log.Fatal("[!] Can't connect to the database")
+		log.Println("[!] Can't connect to the database")
 		log.Fatalf("[!] %e", err)
 	}
 
