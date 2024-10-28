@@ -1,7 +1,7 @@
 package config
 
 type AuthConfig struct {
-	JwtTokenConfig *JwtTokenConfig
+	JwtToken *JwtTokenConfig
 }
 
 type JwtTokenConfig struct {
@@ -11,7 +11,7 @@ type JwtTokenConfig struct {
 
 func newAuthConfig() *AuthConfig {
 	return &AuthConfig{
-		JwtTokenConfig: &JwtTokenConfig{
+		JwtToken: &JwtTokenConfig{
 			LifespanHours: getIntEnv("JWT_TOKEN_LIFESPAN_HOURS"),
 			Issuer:        getStrEnv("JWT_TOKEN_ISSUER"),
 		},
