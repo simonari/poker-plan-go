@@ -1,17 +1,14 @@
 package user
 
 import (
-	"cmd/poker-backend/internal/config"
 	"cmd/poker-backend/internal/database"
+	jwt_token "cmd/poker-backend/internal/utils/token"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"regexp"
-	"strconv"
 	"strings"
-	"time"
 )
 
 type Controller struct {
@@ -92,7 +89,7 @@ func (ct *Controller) LoginUser(c *gin.Context) {
 		return
 	}
 
-	jwtToken, err := generateJWT(user)
+	jwtToken, err := jwt_token.GenerateToken(user.ID)
 
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
@@ -100,20 +97,6 @@ func (ct *Controller) LoginUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"jwt-token": jwtToken})
-}
-
-func generateJWT(user *database.User) (string, error) {
-	cfg := config.Get()
-
-	claims := jwt.MapClaims{
-		"iss": "poker-backed-server",
-		"sub": user.Username,
-		"exp": strconv.FormatInt(time.Now().AddDate(0, 0, 7).Unix(), 10),
-	}
-	tokenWithClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	jwtToken, err := tokenWithClaims.SignedString([]byte(cfg.Secrets.Application.ApplicationSecretKey))
-
-	return jwtToken, err
 }
 
 func (ct *Controller) getUserWithCredentials(cred string) *database.User {
