@@ -7,13 +7,13 @@ import (
 )
 
 func getBoolEnv(name string) bool {
-	value_as_string, is_present := os.LookupEnv(name)
+	valueAsString, isPresent := os.LookupEnv(name)
 
-	if !is_present {
+	if !isPresent {
 		log.Fatalf("[!] ENV [%s] was not found", name)
 	}
 
-	value, err := strconv.ParseBool(value_as_string)
+	value, err := strconv.ParseBool(valueAsString)
 
 	if err != nil {
 		log.Fatalf("[!] Error converting [%s] to bool type", name)
@@ -23,9 +23,9 @@ func getBoolEnv(name string) bool {
 }
 
 func getStrEnv(name string) string {
-	value, is_present := os.LookupEnv(name)
+	value, isPresent := os.LookupEnv(name)
 
-	if !is_present {
+	if !isPresent {
 		log.Fatalf("[!] ENV [%s] was not found", name)
 	}
 
@@ -33,13 +33,13 @@ func getStrEnv(name string) string {
 }
 
 func getIntEnv(name string) int {
-	value_as_string, is_present := os.LookupEnv(name)
+	valueAsString, isPresent := os.LookupEnv(name)
 
-	if !is_present {
+	if !isPresent {
 		log.Fatalf("[!] ENV [%s] was not found", name)
 	}
 
-	value, err := strconv.Atoi(value_as_string)
+	value, err := strconv.Atoi(valueAsString)
 
 	if err != nil {
 		log.Fatalf("[!] Error converting [%s] to int type", name)
