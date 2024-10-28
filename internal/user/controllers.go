@@ -1,12 +1,17 @@
 package user
 
 import (
+	"cmd/poker-backend/internal/config"
 	"cmd/poker-backend/internal/database"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v5"
 	"gorm.io/gorm"
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
+	"strings"
+	"time"
 )
 
 type Controller struct {
@@ -16,6 +21,13 @@ type Controller struct {
 func NewController(db *gorm.DB) *Controller {
 	return &Controller{db}
 }
+
+type credentialsType int
+
+const (
+	isUsernameCredentials credentialsType = iota
+	isEmailCredentials
+)
 
 func (ct *Controller) RegisterUser(c *gin.Context) {
 	requestBody := new(struct {
@@ -27,7 +39,6 @@ func (ct *Controller) RegisterUser(c *gin.Context) {
 	err := c.ShouldBindJSON(&requestBody)
 
 	if err != nil {
-		log.Println(err)
 		c.Status(http.StatusBadRequest)
 		return
 	}
@@ -56,7 +67,98 @@ func (ct *Controller) RegisterUser(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-func (ct *Controller) LoginUser(c *gin.Context) {}
+func (ct *Controller) LoginUser(c *gin.Context) {
+	requestBody := new(struct {
+		UsernameOrEmail string
+		PasswordHash    string
+	})
+
+	err := c.ShouldBindJSON(&requestBody)
+
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	user := ct.getUserWithCredentials(requestBody.UsernameOrEmail)
+
+	if user == nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid credentials"})
+		return
+	}
+
+	if user.PasswordHash != requestBody.PasswordHash {
+		c.JSON(http.StatusUnauthorized, gin.H{"message": "Invalid credentials"})
+		return
+	}
+
+	jwtToken, err := generateJWT(user)
+
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"jwt-token": jwtToken})
+}
+
+func generateJWT(user *database.User) (string, error) {
+	cfg := config.Get()
+
+	claims := jwt.MapClaims{
+		"iss": "poker-backed-server",
+		"sub": user.Username,
+		"exp": strconv.FormatInt(time.Now().AddDate(0, 0, 7).Unix(), 10),
+	}
+	tokenWithClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	jwtToken, err := tokenWithClaims.SignedString([]byte(cfg.Secrets.Application.ApplicationSecretKey))
+
+	return jwtToken, err
+}
+
+func (ct *Controller) getUserWithCredentials(cred string) *database.User {
+	var user *database.User
+
+	if defineUsernameOrEmail(cred) == isUsernameCredentials && validateUsername(cred) {
+		user = ct.getUserWithUsername(cred)
+	} else if defineUsernameOrEmail(cred) == isEmailCredentials && validateEmail(cred) {
+		user = ct.getUserWithEmail(cred)
+	}
+
+	return user
+}
+
+func defineUsernameOrEmail(s string) credentialsType {
+	if strings.Contains(s, "@") {
+		return isEmailCredentials
+	} else {
+		return isUsernameCredentials
+	}
+}
+
+func (ct *Controller) getUserWithEmail(email string) *database.User {
+	user := new(database.User)
+
+	result := ct.db.First(&user, "email = ?", email)
+
+	if result.Error != nil {
+		return nil
+	}
+
+	return user
+}
+
+func (ct *Controller) getUserWithUsername(username string) *database.User {
+	user := new(database.User)
+
+	result := ct.db.First(&user, "username = ?", username)
+
+	if result.Error != nil {
+		return nil
+	}
+
+	return user
+}
 
 func (ct *Controller) LogoutUser(c *gin.Context) {}
 
