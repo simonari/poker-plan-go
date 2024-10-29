@@ -1,4 +1,4 @@
-package jwt_token
+package jwt
 
 import (
 	"cmd/poker-backend/internal/config"

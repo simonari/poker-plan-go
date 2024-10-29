@@ -2,7 +2,7 @@ package user
 
 import (
 	"cmd/poker-backend/internal/database"
-	jwt_token "cmd/poker-backend/internal/utils/token"
+	jwttoken "cmd/poker-backend/internal/utils/token/jwt"
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 	"log"
@@ -89,7 +89,7 @@ func (ct *Controller) LoginUser(c *gin.Context) {
 		return
 	}
 
-	jwtToken, err := jwt_token.GenerateToken(user.ID)
+	jwtToken, err := jwttoken.GenerateToken(user.ID)
 
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
